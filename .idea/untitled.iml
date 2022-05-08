@@ -12,6 +12,7 @@
     <orderEntry type="jdk" jdkName="ruby-2.7.6-p219" jdkType="RUBY_SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="builder (v3.2.4, ruby-2.7.6-p219) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="bundler (v2.3.13, ruby-2.7.6-p219) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="childprocess (v4.1.0, ruby-2.7.6-p219) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="cucumber (v7.1.0, ruby-2.7.6-p219) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="cucumber-core (v10.1.1, ruby-2.7.6-p219) [gem]" level="application" />
