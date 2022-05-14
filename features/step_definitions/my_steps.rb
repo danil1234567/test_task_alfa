@@ -1,92 +1,114 @@
-path = 'C:/Users/danma/RubymineProjects/untitled/drivers/chromedriver.exe'
+#Определение шагов скрипта Test.feature
+
 include Selenium::WebDriver::Support
-file = File.new('C:/Users/danma/RubymineProjects/untitled/Result.txt', 'a:UTF-8')
+path = 'C:/Users/danma/RubymineProjects/untitled/drivers/chromedriver.exe'
+#открываем файл для записи результатов:
+f_result = File.new('C:/Users/danma/RubymineProjects/untitled/Result.txt', 'w:UTF-8')
 
 Given(/^Open browser$/) do
-  @browser = Selenium::WebDriver.for :chrome, driver_path:path
-  @browser.manage.timeouts.implicit_wait = 30
-
+  @browser = Selenium::WebDriver.for :chrome, driver_path:path #создаем переменную экземпляра
+  @browser.manage.timeouts.implicit_wait = 30 #устанавливаем неявное ожидание
 end
 
 And(/^open site calcus\.ru$/) do
-  url = 'https://calcus.ru/kalkulyator-ipoteki'
-  @browser.navigate.to url
-
+  url = 'https://calcus.ru/kalkulyator-ipoteki' #url сайта для тестирования
+  @browser.navigate.to url #переходим по ссылке
 end
 
 Then(/^Check elements$/) do
-  @browser.manage.timeouts.implicit_wait = 10
-  head1 = @browser.find_element(css: 'h1').enabled?
-  head1_text = @browser.find_element(css: 'h1').text
-  head1_expected_value = 'Ипотечный калькулятор'
-  file.print("Тестирование ипотечного калькулятора на сайте calcus.ru\n")
 
-  if head1_text == head1_expected_value and head1 == TRUE
-    file.print("Элемент: заголовок 'Ипотечный калькулятор' доступен\n")
+  f_result.print("Тестирование ипотечного калькулятора на сайте calcus.ru\n") #Начало тестирования
+
+  #Проверка доступности элемента заголовок "Ипотечный калькулятор":
+  head1 = @browser.find_element(xpath: "//div[@class = 'container-fluid' ]//h1").enabled? #инфо о доступности заголовка
+  head1_text = @browser.find_element(xpath: "//div[@class = 'container-fluid' ]//h1").text #текст элемента
+  head1_expvalue = 'Ипотечный калькулятор' #ожидаемый текст
+
+  #Вывод результата:
+  if head1 == TRUE and head1_expvalue == head1_text
+    head1_result = "Элемент: заголовок 'Ипотечный калькулятор' доступен\n"
   else
-    file.print("Элемент: заголовок 'Ипотечный калькулятор' не доступен\n")
+    head1_result = "Элемент: заголовок 'Ипотечный калькулятор' не доступен\n"
   end
+  f_result.print(head1_result)
 
   #Проверка ссылок (по стоимости недвижимости и по сумме кредита)
-  cost_of_property_method = @browser.find_element(css: ".calc-toggle.js-calc-toggle.current").enabled?
-  cost_of_property_method_text = @browser.find_element(css: '.calc-toggle.js-calc-toggle.current').text
-  cost_of_property_method_expected_value = 'По стоимости недвижимости'
-  if cost_of_property_method_text == cost_of_property_method_expected_value and cost_of_property_method == TRUE
-    file.print("Ссылка 'по стоимости недвижимости' доступна\n")
-  else
-    file.print("Ссылка 'по стоимости недвижимости' недоступна\n")
-  end
+  #По стоимости недвижимости
+  by_cost_of_property =\
+  @browser.find_element(xpath: "//div[@class = 'calc-fright' ]//a").enabled? #инфо о доступности Элемента
+  by_cost_of_property_text = @browser.find_element(xpath: "//div[@class = 'calc-fright' ]//a").text #текст элемента
+  by_cost_of_property_expvalue = 'По стоимости недвижимости' #ожидаемый текст
 
-  @browser.find_element(css: ".calc-toggle.js-calc-toggle.current").click #нажимаем на ссылку "по стоимости недвижимости"
-
-  credit_sum_method = @browser.find_element(:link, "По сумме кредита").enabled?
-  if credit_sum_method == TRUE
-    file.print("Ссылка 'по сумме кредита' доступна\n")
+  #Вывод результата:
+  if by_cost_of_property_text == by_cost_of_property_expvalue and by_cost_of_property == TRUE
+    by_cost_of_property_result = "Ссылка 'по стоимости недвижимости' доступна\n"
   else
-    file.print("Ссылка 'по сумме кредита' недоступны\n")
+    by_cost_of_property_result = "Ссылка 'по стоимости недвижимости' не доступна\n"
   end
+  f_result.print(by_cost_of_property_result)
 
-  #Поля для заполнения данными:
-  cost_of_property = @browser.find_element(:xpath, "//div[@class = 'calc-frow type-x type-1'][1]//div[@class='calc-fleft']").enabled?
-  if cost_of_property == TRUE
-    file.print("Элемент 'стоимость недвижимости' доступен\n")
+  #По сумме кредита:
+  credit_sum = @browser.find_element(xpath: "//div[@class = 'calc-fright' ]//a[2]").enabled? #инфо о доступности Элемента
+  credit_sum_text = @browser.find_element(xpath: "//div[@class = 'calc-fright' ]//a[2]").text #текст элемента
+  credit_sum_text_expvalue = "По сумме кредита"
+
+  #Вывод результата:
+  if credit_sum == TRUE and credit_sum_text == credit_sum_text_expvalue
+    credit_sum_result = "Ссылка 'по сумме кредита' доступна\n"
   else
-    file.print("Элемент 'стоимость недвижимости' недоступен\n")
+    credit_sum_result = "Ссылка 'по сумме кредита' не доступна\n"
   end
+  f_result.print(credit_sum_result)
+
+  #Проверка полей для заполнения данными
+  #стоимость недвижимости:
+  cost_of_property = @browser.find_element\
+(:xpath, "//div[@class = 'calc-frow type-x type-1'][1]//div[@class='calc-fleft']").enabled? #инфо о доступности Элемента
+  cost_of_property_text = @browser.find_element\
+(:xpath, "//div[@class = 'calc-frow type-x type-1'][1]//div[@class='calc-fleft']").text #текст элемента
+  cost_of_property_expvalue = "По стоимости недвижимости"
+
+  #Вывод результата:
+  if cost_of_property == TRUE and cost_of_property_text == cost_of_property_expvalue
+    cost_of_property_result = "Элемент 'стоимость недвижимости' доступен\n"
+  else
+    cost_of_property_result = "Элемент 'стоимость недвижимости' не доступен\n"
+  end
+  f_result.print(cost_of_property_result)
 
   first_pay = @browser.find_element(:xpath, "//div[@class = 'calc-frow type-x type-1'][2]//div[@class='calc-fleft']").enabled?
   if first_pay == TRUE
-    file.print("Элемент 'первоначальный_взнос' доступен\n")
+    f_result.print("Элемент 'первоначальный_взнос' доступен\n")
   else
-    file.print("Элемент 'первоначальный_взнос' недоступен\n")
+    f_result.print("Элемент 'первоначальный_взнос' недоступен\n")
   end
 
   credit = @browser.find_element(:xpath, "//div[@class = 'calc-frow type-x type-1'][3]//div[@class='calc-fleft']").enabled?
   if credit == TRUE
-    file.print("Элемент 'Сумма_кредита' доступен\n")
+    f_result.print("Элемент 'Сумма_кредита' доступен\n")
   else
-    file.print("Элемент 'Сумма_кредита' недоступен\n")
+    f_result.print("Элемент 'Сумма_кредита' недоступен\n")
   end
 
   credit_time = @browser.find_element(:xpath, "//div[@class = 'calc-frow calc_type-x calc_type-1 calc_type-3']//div[@class = 'calc-fleft']").enabled?
   if credit_time == TRUE
-    file.print("Элемент 'Срок_кредита' доступен\n")
+    f_result.print("Элемент 'Срок_кредита' доступен\n")
   else
-    file.print("Элемент 'Срок_кредита' недоступен\n")
+    f_result.print("Элемент 'Срок_кредита' недоступен\n")
   end
 
   credit_percent = @browser.find_element(:xpath, "//div[@class = 'calc-frow']//div[@class = 'calc-fleft']").enabled?
   if credit_percent == TRUE
-    file.print("Элемент 'Процентная_ставка' доступен\n")
+    f_result.print("Элемент 'Процентная_ставка' доступен\n")
   else
-    file.print("Элемент 'Процентная_ставка' недоступен\n")
+    f_result.print("Элемент 'Процентная_ставка' недоступен\n")
   end
 
   pay_type = @browser.find_element(:xpath, "//div[@class = 'calc-frow calc_type-x calc_type-1']//div[@class = 'calc-fleft']").enabled?
   if pay_type == TRUE
-    file.print("Элемент 'Тип_ежемесячных_платежей' доступен\n")
+    f_result.print("Элемент 'Тип_ежемесячных_платежей' доступен\n")
   else
-    file.print("Элемент 'Тип_ежемесячных_платежей' недоступен\n")
+    f_result.print("Элемент 'Тип_ежемесячных_платежей' недоступен\n")
   end
 
 end
@@ -117,9 +139,8 @@ Then(/^Check calculate$/) do
 
   radio_button_ann = @browser.find_element(:xpath, "//div[@class ='calc-fright']//div[@class ='mb-2']//input").selected?
   radio_button_dif = @browser.find_element(:xpath, "//div[@class ='calc-fright']//input[@value= '2']").selected?
-
+  calculate_button = @browser.find_element(:xpath, "//div[@class ='calc-frow button-row']//input")
   if radio_button_dif == FALSE and radio_button_ann == TRUE
-    calculate_button = @browser.find_element(:xpath, "//div[@class ='calc-frow button-row']//input")
     calculate_button.click
   elsif radio_button_ann == FALSE
     @browser.find_element(:xpath, "//div[@class ='calc-fright']//div[@class ='mb-2']//input").click
@@ -148,13 +169,13 @@ Then(/^Check calculate$/) do
   file1.print("полученное значение #{mothly_payment}\n")
 
   if mothly_payment_exp == mothly_payment
-    file.print("Расчет выполнен верно #{mothly_payment_exp}, #{mothly_payment}\n")
+    f_result.print("Расчет выполнен верно #{mothly_payment_exp}, #{mothly_payment}\n")
   else
-    file.print("Расчет выполнен неверно #{mothly_payment_exp}, #{mothly_payment}\n")
+    f_result.print("Расчет выполнен неверно #{mothly_payment_exp}, #{mothly_payment}\n")
   end
 
   file1.close
-  file.close
+  f_result.close
 
 
 
