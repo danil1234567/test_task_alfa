@@ -142,10 +142,31 @@ Then(/^Check calculate$/) do
   start_sum_per.send_keys '20'
 
   # Todo: check_credit_sum and first_pay fields
+  # Проверяем появление текста в разделах "Первоначальный взнос" и "Сумма кредита":
+  #
+  start_sum_size = @browser.find_element(:xpath, "//div[@class = 'calc-input-desc start_sum_equiv']").text
+  start_sum_size = start_sum_size.delete(')')
+  start_sum_size = start_sum_size.delete('(')
+
+  if start_sum_size == '2 400 000 руб.'
+    f_result.print("Сумма первоначального взноса расчитана верно\n")
+  else
+    f_result.print("Сумма первоначального взноса расчитана неверно\n")
+  end
+
+  credit_sum_size = @browser.find_element(:xpath, "//span[@class = 'credit_sum_value text-muted']").text
+  rub = @browser.find_element(:xpath, "//span[@class = 'calc-input-desc']").text
+  credit_sum_size += ' ' + rub
+
+  if credit_sum_size == '9 600 000 руб.'
+    f_result.print("Сумма первоначального расчитана верно\n")
+  else
+    f_result.print("Сумма первоначального расчитана неверно\n")
+  end
 
   #Установить срок кредита 20 лет
   credit_time = @browser.find_element(:xpath, "//div[@class ='calc-frow calc_type-x calc_type-1 calc_type-3']//div[@class ='calc-input']//input")
-  credit_time.send_keys '20' #вставить в поле 20
+  credit_time.send_keys('20') #вставить в поле 20
 
   #Генерируем процентную ставку
   rnd = Random.new
@@ -154,6 +175,7 @@ Then(/^Check calculate$/) do
   #Заполняем поле с процентной ставкой сгенерированным значением
   credit_percent = @browser.find_element(:xpath, "//div[@class ='calc-frow']//div[@class ='calc-input']//input")
   credit_percent.send_keys credit_percent_value
+
 
   #Проверка отмечен радиобаттон "Аннуитетные" и расчет
   radio_button_ann = @browser.find_element(:xpath, "//div[@class ='calc-fright']//div[@class ='mb-2']//input").selected?
