@@ -1,7 +1,29 @@
 #Определение шагов скрипта Test.feature
-
 include Selenium::WebDriver::Support
 path = 'C:/Users/danma/RubymineProjects/untitled/drivers/chromedriver.exe'
+
+def check_element(selector, value, file)
+  element = @browser.find_element(xpath: selector)
+  element_enable = element.enabled?
+  element_text =  element.text
+  if element_enable == TRUE and element_text == value
+    file.print("Элемент #{value} доступен\n")
+  else
+    file.print("Элемент #{value} не доступен\n")
+  end
+end
+
+def calculate_monthly_pay(credit_percent_value)
+  n = 240
+  i = ((credit_percent_value.to_f)/12/100).to_f
+  start_sum_per = 20
+  cost_of_property = 12000000
+  credit_sum = (100 - start_sum_per.to_f) / 100 * cost_of_property.to_f
+
+  mothly_payment_exp = (credit_sum * (i * (1 + i)**n) / ( ( 1 + i )**n - 1)).to_f
+  mothly_payment_exp.round(2).to_s.sub(".", ",")
+end
+
 #открываем файл для записи результатов:
 f_result = File.new('C:/Users/danma/RubymineProjects/untitled/Result.txt', 'w:UTF-8')
 
@@ -20,37 +42,20 @@ Then(/^Check elements$/) do
   f_result.print("Тестирование ипотечного калькулятора на сайте calcus.ru\n") #Начало тестирования
 
   #Проверка доступности элемента заголовок "Ипотечный калькулятор":
-  head1 = @browser.find_element(xpath: "//div[@class = 'container-fluid' ]//h1").enabled? #инфо о доступности заголовка
-  head1_text = @browser.find_element(xpath: "//div[@class = 'container-fluid' ]//h1").text #текст элемента
+  head1_slctr = "//div[@class = 'container-fluid' ]//h1" # Селектор элемента
   head1_expvalue = 'Ипотечный калькулятор' #ожидаемый текст
-
-  #Вывод результата:
-  if head1 == TRUE and head1_expvalue == head1_text
-    head1_result = "Элемент: заголовок 'Ипотечный калькулятор' доступен\n"
-  else
-    head1_result = "Элемент: заголовок 'Ипотечный калькулятор' не доступен\n"
-  end
-  f_result.print(head1_result)
+  check_element(head1_slctr, head1_expvalue, f_result)
 
   # Проверка ссылок (по стоимости недвижимости и по сумме кредита)
   # По стоимости недвижимости
-  by_cost_of_property =\
-  @browser.find_element(xpath: "//div[@class = 'calc-fright' ]//a").enabled? # инфо о доступности Элемента
-  by_cost_of_property_text = @browser.find_element(xpath: "//div[@class = 'calc-fright' ]//a").text # текст элемента
-  by_cost_of_property_expvalue = 'По стоимости недвижимости' # ожидаемый текст
-
-  # Вывод результата:
-  if by_cost_of_property_text == by_cost_of_property_expvalue and by_cost_of_property == TRUE
-    by_cost_of_property_result = "Ссылка 'по стоимости недвижимости' доступна\n"
-  else
-    by_cost_of_property_result = "Ссылка 'по стоимости недвижимости' не доступна\n"
-  end
-  f_result.print(by_cost_of_property_result)
+  by_property_cost_slctr = "//div[@class = 'calc-fright' ]//a" # Селектор элемента
+  by_property_cost_expvalue = 'По стоимости недвижимости' # ожидаемый текст
+  check_element(by_property_cost_slctr, by_property_cost_expvalue, f_result)
 
   #По сумме кредита:
-  credit_sum = @browser.find_element(xpath: "//div[@class = 'calc-fright' ]//a[2]").enabled? #инфо о доступности Элемента
-  credit_sum_text_expvalue = "По сумме кредита"
-  credit_sum_text = @browser.find_element(xpath: "//div[@class = 'calc-fright' ]//a[2]").text #текст элемента
+  credit_sum_slctr = "//div[@class = 'calc-fright' ]//a[2]" # Селектор элемента
+  credit_sum_expvalue = "По сумме кредита"
+  check_element(credit_sum_slctr, credit_sum_expvalue, f_result)
 
   #Trash
   # ========
@@ -63,67 +68,37 @@ Then(/^Check elements$/) do
   # end
   # =======
 
-  #Вывод результата:
-  if credit_sum == TRUE and credit_sum_text == credit_sum_text_expvalue
-    credit_sum_result = "Ссылка 'по сумме кредита' доступна\n"
-  else
-    credit_sum_result = "Ссылка 'по сумме кредита' не доступна\n"
-  end
-  f_result.print(credit_sum_result)
-
   # Проверка полей для заполнения данными
   # стоимость недвижимости:
-  cost_of_property = @browser.find_element(:xpath, "//div[@class = 'calc-frow type-x type-1'][1]//div[@class='calc-fleft']").enabled? #инфо о доступности Элемента
-  cost_of_property_text = @browser.find_element(:xpath, "//div[@class = 'calc-frow type-x type-1'][1]//div[@class='calc-fleft']").text #текст элемента
-  cost_of_property_expvalue = "Стоимость недвижимости" #Ожидаемое значение
-
-  # Вывод результата:
-  if cost_of_property == TRUE and cost_of_property_text == cost_of_property_expvalue
-    cost_of_property_result = "Элемент 'стоимость недвижимости' доступен\n"
-  else
-    cost_of_property_result = "Элемент 'стоимость недвижимости' не доступен\n"
-  end
-  f_result.print(cost_of_property_result)
+  propety_cost_slctr = "//div[@class = 'calc-frow type-x type-1'][1]//div[@class='calc-fleft']" # Селектор элемента
+  propety_cost_expvalue = "Стоимость недвижимости" # Ожидаемое значение
+  check_element(propety_cost_slctr, propety_cost_expvalue, f_result)
 
   # Первоначальный взнос
-  first_pay = @browser.find_element(:xpath, "//div[@class = 'calc-frow type-x type-1'][2]//div[@class='calc-fleft']").enabled?
-  if first_pay == TRUE
-    f_result.print("Элемент 'первоначальный_взнос' доступен\n")
-  else
-    f_result.print("Элемент 'первоначальный_взнос' не доступен\n")
-  end
+  first_pay_slctr = "//div[@class = 'calc-frow type-x type-1'][2]//div[@class='calc-fleft']" # Селектор элемента
+  first_pay_expvalue = "Первоначальный взнос" # Ожидаемое значение
+  check_element(first_pay_slctr, first_pay_expvalue, f_result)
 
   # Сумма кредита
-  credit = @browser.find_element(:xpath, "//div[@class = 'calc-frow type-x type-1'][3]//div[@class='calc-fleft']").enabled?
-  if credit == TRUE
-    f_result.print("Элемент 'Сумма_кредита' доступен\n")
-  else
-    f_result.print("Элемент 'Сумма_кредита' недоступен\n")
-  end
+  credit_sclct = "//div[@class = 'calc-frow type-x type-1'][3]//div[@class='calc-fleft']" # Селектор элемента
+  credit_expvalue = "Сумма кредита" # Ожидаемое значение
+  check_element(credit_sclct, credit_expvalue, f_result)
 
   # Срок кредита
-  credit_time = @browser.find_element(:xpath, "//div[@class = 'calc-frow calc_type-x calc_type-1 calc_type-3']//div[@class = 'calc-fleft']").enabled?
-  if credit_time == TRUE
-    f_result.print("Элемент 'Срок_кредита' доступен\n")
-  else
-    f_result.print("Элемент 'Срок_кредита' недоступен\n")
-  end
+  credit_time_slct = "//div[@class = 'calc-frow calc_type-x calc_type-1 calc_type-3']//div[@class = 'calc-fleft']" # Селектор элемента
+  credit_time_expvalue = "Срок кредита" # Ожидаемое значение
+  check_element(credit_time_slct, credit_time_expvalue, f_result)
 
-  # Процентная ставка
-  credit_percent = @browser.find_element(:xpath, "//div[@class = 'calc-frow']//div[@class = 'calc-fleft']").enabled?
-  if credit_percent == TRUE
-    f_result.print("Элемент 'Процентная_ставка' доступен\n")
-  else
-    f_result.print("Элемент 'Процентная_ставка' недоступен\n")
-  end
+  # Срок кредита
+  credit_percent_slct = "//div[@class = 'calc-frow']//div[@class = 'calc-fleft']" # Селектор элемента
+  credit_percent_expvalue = "Процентная ставка" # Ожидаемое значение
+  check_element(credit_percent_slct, credit_percent_expvalue, f_result)
 
   # Тип ежемесячных платежей
-  pay_type = @browser.find_element(:xpath, "//div[@class = 'calc-frow calc_type-x calc_type-1']//div[@class = 'calc-fleft']").enabled?
-  if pay_type == TRUE
-    f_result.print("Элемент 'Тип_ежемесячных_платежей' доступен\n")
-  else
-    f_result.print("Элемент 'Тип_ежемесячных_платежей' недоступен\n")
-  end
+  pay_type_sclct = "//div[@class = 'calc-frow calc_type-x calc_type-1']//div[@class = 'calc-fleft']" # Селектор элемента
+  pay_type_expvalue = "Тип ежемесячных платежей" # Ожидаемое значение
+  check_element(pay_type_sclct, pay_type_expvalue, f_result)
+
 
 end
 
@@ -141,9 +116,7 @@ Then(/^Check calculate$/) do
   start_sum_per = @browser.find_element(:xpath, "//div[@class ='calc-frow type-x type-1']//div[@class ='calc-input']//input[@name='start_sum']")
   start_sum_per.send_keys '20'
 
-  # Todo: check_credit_sum and first_pay fields
   # Проверяем появление текста в разделах "Первоначальный взнос" и "Сумма кредита":
-  #
   start_sum_size = @browser.find_element(:xpath, "//div[@class = 'calc-input-desc start_sum_equiv']").text
   start_sum_size = start_sum_size.delete(')')
   start_sum_size = start_sum_size.delete('(')
@@ -176,40 +149,31 @@ Then(/^Check calculate$/) do
   credit_percent = @browser.find_element(:xpath, "//div[@class ='calc-frow']//div[@class ='calc-input']//input")
   credit_percent.send_keys credit_percent_value
 
-
   #Проверка отмечен радиобаттон "Аннуитетные" и расчет
-  radio_button_ann = @browser.find_element(:xpath, "//div[@class ='calc-fright']//div[@class ='mb-2']//input").selected?
-  radio_button_dif = @browser.find_element(:xpath, "//div[@class ='calc-fright']//input[@value= '2']").selected?
+  radio_button_ann = @browser.find_element(:xpath, "//div[@class ='calc-fright']//label[@for = 'payment-type-1']").selected?
+  radio_button_dif = @browser.find_element(:xpath, "//div[@class ='calc-fright']//label[@for = 'payment-type-2']").selected?
   calculate_button = @browser.find_element(:xpath, "//div[@class ='calc-frow button-row']//input")
 
-  if radio_button_dif == FALSE and radio_button_ann == TRUE
-    calculate_button.click
-  elsif radio_button_ann == FALSE
-    @browser.find_element(:xpath, "//div[@class ='calc-fright']//div[@class ='mb-2']//input").click
-    calculate_button.click
-  end
+  calculate_button.click
+  # if radio_button_dif == FALSE and radio_button_ann == TRUE
+  #   @browser.find_element(:xpath, "//div[@class ='calc-fright']//label[@for = 'payment-type-2']").click
+  #   calculate_button.click
+  # elsif radio_button_ann == FALSE
+  #   @browser.find_element(:xpath, "//div[@class ='calc-fright']//label[@for = 'payment-type-1']").click
+  #   calculate_button.click
+  # end
 
-  # ожидание загрузки страницы
+  f_result.print(radio_button_dif, radio_button_ann)
+  # Ожидание загрузки страницы
   sleep(5)
 
   # Извлекаем полученное значение ежемесячного платежа
   mothly_payment = @browser.find_element(:xpath, "//div[@class ='calc-result-value result-placeholder-monthlyPayment']").text
-
-  #расчет ежемесячного платежа для проверки полученного значения:
-  n = 240
-  i = ((credit_percent_value.to_f)/12/100).to_f
-  start_sum_per = 20
-  cost_of_property = 12000000
-  credit_sum = (100 - start_sum_per.to_f) / 100 * cost_of_property.to_f
-
-  mothly_payment_exp = (credit_sum * (i * (1 + i)**n) / ( ( 1 + i )**n - 1)).to_f
-  mothly_payment_exp = mothly_payment_exp.round(2)
-
   mothly_payment = mothly_payment.delete(' ')
-  mothly_payment_exp = mothly_payment_exp.to_s
-  mothly_payment_exp = mothly_payment_exp.sub(".", ",")
 
-  # вывод результата
+  # Расчет ежемесячного платежа для проверки полученного значения и вывод результата:
+  mothly_payment_exp = calculate_monthly_pay(credit_percent_value)
+
   if mothly_payment_exp == mothly_payment
     f_result.print("Расчет выполнен верно #{mothly_payment_exp}, #{mothly_payment}\n")
   else
